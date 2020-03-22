@@ -1,0 +1,76 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    <title>
+        {% if channelname %}
+            {{ channelname }}
+        {% else %}
+            Homepage
+        {% endif %}
+    </title>
+{% endblock %}
+
+{% block style %}
+<style>
+    .row {padding: 20px; text-align: center;}
+</style>
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='homepage.js') }}"></script>    
+{% endblock %}
+
+
+{% block body %}
+    <div class="row">
+        <div class="col-lg-3">
+            <label for="chat_message">Type your Message</label>
+            <textarea class="form-control" rows="10" id="chat_message" name="chat_message"></textarea><br>
+            <button id ="chat_button" class="btn btn-primary">Submit</button>
+            <div class="error_message">
+                <span id="channel_error"></span>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            {% if channelname %}
+                <span>Channel Name: {{ channelname }}</span>
+            {% else %}
+                <span>No Channel Selected</span>
+            {% endif %}
+            <ol id="chat_list">
+                {% if chats_current_channel %}
+                    {% for chat in chats_current_channel %}
+                        <li>
+                            {{ chat.username }}
+                            {{ chat.time }}<br>
+                            {{ chat.message }}                    
+                        </li>
+                    {% endfor %}
+                {% endif %}
+            </ol>
+        </div>
+        <div class="col-lg-3">
+            {% if allchannels %}
+                All Channels<br>
+                {% for c in allchannels %}
+                    <div>
+                        {% if channelname == c.name %}
+                            {{ c.name }}
+                        {% else %}
+                            <a href="{{ url_for('changechannel', channelname=c.name) }}">{{ c.name }}</a>
+                        {% endif %}
+                        {% if c.username == username %}
+                            <span><a href="#">Edit</a> / <a href="#">Delete</a></span>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                No Channels in List<br>
+                <a href="{{ url_for('createchannel') }}">Create Channel</a>
+            {% endif %}
+
+
+        </div>
+    </div>
+{% endblock %}

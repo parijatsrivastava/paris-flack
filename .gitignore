@@ -1,0 +1,6 @@
+env/
+__pycache__/
+.vscode/
+flask_session/
+src4/
+src5/
