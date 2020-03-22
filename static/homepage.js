@@ -46,7 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
             let chat = user.concat(" ", time, '<br>', msg);
             const li = document.createElement('li');
             li.innerHTML = chat;
-            document.querySelector('#chat_list').append(li);
+            var mylist = document.querySelector("#chat_list");
+            mylist.insertBefore(li, mylist.childNodes[0]);
+            //document.querySelector('#chat_list').unshift(li);
         }
     });
 });

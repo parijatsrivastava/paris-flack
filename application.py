@@ -28,7 +28,7 @@ socketio = SocketIO(app)
 def index():
     if session.get("username") == None:
         return redirect("/login")
-    allchannels = Channel.query.all()
+    allchannels = Channel.query.order_by(Channel.name).all()
     
     if session.get("channelname") == None:
         session["channelname"] = None
@@ -36,7 +36,7 @@ def index():
         chats_current_channel = None
     else:
         current_channel = Channel.query.filter_by(name=session["channelname"]).first()
-        chats_current_channel = current_channel.chats
+        chats_current_channel = Chat.query.filter_by(channelname=session["channelname"]).order_by(Chat.time.desc()).all()
     
     if request.method == "GET":        
         return render_template("homepage.html", username=session["username"], channelname=session["channelname"],
