@@ -148,6 +148,7 @@ def login():
     
     if check_password_hash(user.password, password):
         session["username"] = user.username
+        session.permanent = True
         return redirect("/")
     else:
         return render_template("login.html", login_error="Incorrect Password")
