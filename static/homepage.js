@@ -41,14 +41,19 @@ document.addEventListener('DOMContentLoaded', () => {
         let msg = data.message;
         let user = data.username;
         let time = data.time;
+        let chat_id = data.chat_id;
+        var chatID = chat_id.toString();
         if (channelname === data.channel)
         {
             let chat = user.concat(" ", time, '<br>', msg);
+            if (user === username) {
+                var text = "<a href=" + "'/deletechat/" + chatID + "'" + '>delete</a>';
+                chat = chat.concat(" ", text);
+            }
             const li = document.createElement('li');
             li.innerHTML = chat;
             var mylist = document.querySelector("#chat_list");
             mylist.insertBefore(li, mylist.childNodes[0]);
-            //document.querySelector('#chat_list').unshift(li);
         }
     });
 });

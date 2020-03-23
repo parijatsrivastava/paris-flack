@@ -32,15 +32,12 @@ def index():
     
     if session.get("channelname") == None:
         session["channelname"] = None
-        current_channel = None
         chats_current_channel = None
     else:
-        current_channel = Channel.query.filter_by(name=session["channelname"]).first()
         chats_current_channel = Chat.query.filter_by(channelname=session["channelname"]).order_by(Chat.time.desc()).all()
     
     if request.method == "GET":        
-        return render_template("homepage.html", username=session["username"], channelname=session["channelname"],
-        allchannels=allchannels, chats_current_channel=chats_current_channel, current_channel=current_channel)
+        return render_template("homepage.html", username=session["username"], channelname=session["channelname"], allchannels=allchannels, chats_current_channel=chats_current_channel)
 
 
 @app.route("/createchannel", methods=["POST", "GET"])
@@ -65,23 +62,23 @@ def createchannel():
     else:
         return render_template("createchannel.html", username=session["username"], create_channel_error="Type a Different Channel Name")
 
-@app.route("/edit_channel_name/<string:channelname>", methods=["POST", "GET"])
-def edit_channel_name(channelname):
+
+@app.route("/deletechat/<int:chat_id>")
+def deletechat(chat_id):
     if session.get("username") == None:
         return redirect("/login")
-    
-    c = Channel.query.filter_by(name=channelname).first()
-    if c == None:
+
+    try:
+        chat_id = int(chat_id)
+    except:
         return redirect("/")
-    if request.method == "GET":
-        return render_template("editchannel.html", username=session["username"], channelname=channelname)
 
-    return "TODO"
-    
-    
-
-    
-
+    c = Chat.query.get(chat_id)
+    if c.username != session["username"]:        
+        return redirect("/")
+    db.session.delete(c)
+    db.session.commit()
+    return redirect("/")
 
 
 @app.route("/changechannel/<string:channelname>")
@@ -249,5 +246,6 @@ def chat(data):
     c = Chat(message=message, username=username, time=time, channelname=channel)
     db.session.add(c)
     db.session.commit()
-    mychat = {"message": message, "channel": channel, "username": username, "time": str(time)}
+    c = Chat.query.filter_by(username=username).filter_by(channelname=channel).filter_by(time=time).first()
+    mychat = {"message": message, "channel": channel, "username": username, "time": str(time), "chat_id": c.id}
     emit("receive chat", mychat, broadcast=True)

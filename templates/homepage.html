@@ -25,7 +25,7 @@
 {% block body %}
     <div class="row">
         <div class="col-lg-3">
-            <label for="chat_message">Type your Message</label>
+            <label for="chat_message"><h4>Type your Message</h4></label>
             <textarea class="form-control" rows="10" id="chat_message" name="chat_message"></textarea><br>
             <button id ="chat_button" class="btn btn-primary">Submit</button>
             <div class="error_message">
@@ -34,7 +34,7 @@
         </div>
         <div class="col-lg-6">
             {% if channelname %}
-                <span>Channel Name: {{ channelname }}</span>
+                <h4>Channel - {{ channelname }}</h4>
             {% else %}
                 <span>No Channel Selected</span>
             {% endif %}
@@ -44,7 +44,11 @@
                         <li>
                             {{ chat.username }}
                             {{ chat.time }}<br>
-                            {{ chat.message }}                    
+                            {{ chat.message }}
+                            {% if chat.username == username %}
+                                <a href="{{ url_for('deletechat', chat_id=chat.id) }}">delete</a>
+                            {% endif %}
+                            </span>
                         </li>
                     {% endfor %}
                 {% endif %}
@@ -52,7 +56,7 @@
         </div>
         <div class="col-lg-3">
             {% if allchannels %}
-                All Channels<br>
+                <h4>All Channels</h4>
                 {% for c in allchannels %}
                     <div>
                         {% if channelname == c.name %}
@@ -61,7 +65,7 @@
                             <a href="{{ url_for('changechannel', channelname=c.name) }}">{{ c.name }}</a>
                         {% endif %}
                         {% if c.username == username %}
-                            <span><a href="#">Edit</a> / <a href="#">Delete</a></span>
+                            <span style="color: green;">(My Channel)</span>
                         {% endif %}
                     </div>
                 {% endfor %}
