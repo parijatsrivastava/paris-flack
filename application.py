@@ -34,7 +34,7 @@ def index():
         session["channelname"] = None
         chats_current_channel = None
     else:
-        chats_current_channel = Chat.query.filter_by(channelname=session["channelname"]).order_by(Chat.time.desc()).all()
+        chats_current_channel = Chat.query.filter_by(channelname=session["channelname"]).order_by(Chat.time.desc()).limit(100).all()
     
     if request.method == "GET":        
         return render_template("homepage.html", username=session["username"], channelname=session["channelname"], allchannels=allchannels, chats_current_channel=chats_current_channel)
