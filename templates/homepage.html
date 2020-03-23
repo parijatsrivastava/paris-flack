@@ -46,7 +46,8 @@
                             {{ chat.time }}<br>
                             {{ chat.message }}
                             {% if chat.username == username %}
-                                <a href="{{ url_for('deletechat', chat_id=chat.id) }}">delete</a>
+                                <a href="{{ url_for('deletechat', chat_id=chat.id) }}">delete</a>&nbsp;
+                                <a href="{{ url_for('editchat', chat_id=chat.id) }}">edit</a>
                             {% endif %}
                             </span>
                         </li>

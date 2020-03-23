@@ -63,6 +63,36 @@ def createchannel():
         return render_template("createchannel.html", username=session["username"], create_channel_error="Type a Different Channel Name")
 
 
+@app.route("/editchat/<int:chat_id>", methods=["POST", "GET"])
+def editchat(chat_id):
+    if session.get("username") == None:
+        return redirect("/login")
+
+    try:
+        chat_id = int(chat_id)
+    except:
+        return redirect("/")
+
+    c = Chat.query.get(chat_id)
+    if c == None:
+        return redirect("/")
+    if c.username != session["username"]:        
+        return redirect("/")
+    
+    if request.method == "GET":
+        return render_template("editchat.html", username=session["username"], chat=c)
+    
+    chat_message = request.form.get("chat_message")
+    if not chat_message:
+        return render_template("editchat.html", username=session["username"], chat=c, editchat_error="Type a Message")
+    c.message = chat_message
+    time = datetime.now()
+    c.time = time
+    db.session.commit()
+    return redirect("/")
+
+
+
 @app.route("/deletechat/<int:chat_id>")
 def deletechat(chat_id):
     if session.get("username") == None:
@@ -74,6 +104,9 @@ def deletechat(chat_id):
         return redirect("/")
 
     c = Chat.query.get(chat_id)
+    if c == None:
+        return redirect("/")
+
     if c.username != session["username"]:        
         return redirect("/")
     db.session.delete(c)

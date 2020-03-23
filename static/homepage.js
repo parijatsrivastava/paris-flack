@@ -48,7 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
             let chat = user.concat(" ", time, '<br>', msg);
             if (user === username) {
                 var text = "<a href=" + "'/deletechat/" + chatID + "'" + '>delete</a>';
-                chat = chat.concat(" ", text);
+                var text2 = "<a href=" + "'/editchat/" + chatID + "'" + '>edit</a>';
+                chat = chat.concat(" ", text, " ", text2);
             }
             const li = document.createElement('li');
             li.innerHTML = chat;
