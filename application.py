@@ -254,6 +254,96 @@ def process_verification():
     session.clear()
     return redirect("/login")
 
+@app.route("/forgotpassword", methods=["POST", "GET"])
+def forgotpassword():
+    if session.get("username") != None:
+        return redirect("/")
+    
+    session.clear()
+    if request.method == "GET":
+        return render_template("forgotpassword.html")
+    
+    username = request.form.get("username")
+    if not username:
+        return render_template("forgotpassword.html", fp_error="enter username or email address")
+    
+    username = username.strip()
+    user = User.query.filter_by(username=username).first()
+    if user == None:
+        user = User.query.filter_by(email=username).first()
+        if user == None:
+            return render_template("login.html", login_error="Incorrect Username or Email")
+    
+    code = str(random.randint(100000, 999999))
+    session["fp_userInfo"] = {"user": user, "code": code}
+    try:
+        sendmail(user.email, "Verify Email", code)
+    except:
+        return "Error"
+    return redirect("/fp_verification")
+
+@app.route("/fp_verification", methods=["POST", "GET"])
+def fp_verification():
+    if session.get("fp_userInfo") == None:
+        return redirect("/")
+
+    if request.method == "GET":
+        return render_template("fp_verification.html", email=session["fp_userInfo"]["user"].email)
+
+    code = request.form.get("code")
+    if not code:
+        return render_template("fp_verification.html", email=session["fp_userInfo"]["user"].email, fp_verification_error="Type Verification Code")
+    if code != session["fp_userInfo"]["code"]:
+        return render_template("fp_verification.html", email=session["fp_userInfo"]["user"].email, fp_verification_error="Incorrect Verification Code")
+    
+    username = session["fp_userInfo"]["user"].username
+    session.clear()
+    session["username"] = username
+    return redirect("/changepassword")
+
+
+@app.route("/changepassword", methods=["POST", "GET"])
+def changepassword():
+    if session.get("username") == None:
+        return redirect("/login")
+    if request.method == "GET":
+        return render_template("changepassword.html", username=session["username"])
+
+    password = request.form.get("password")
+    password1 = request.form.get("password1")
+
+    if not password or not password1:
+        return render_template("changepassword.html", username=session["username"], change_password_error="password or confirm password missing")
+    if password != password1:
+        return render_template("changepassword.html", username=session["username"], change_password_error="passwords don't match")
+    if not validate_password(password):
+        return render_template("changepassword.html", username=session["username"], change_password_error="min 6 character alpha-numeric password")
+
+    user = User.query.filter_by(username=session["username"]).first()
+    if not user:
+        session.clear()
+        return redirect("/login")
+
+    password = generate_password_hash(password)
+    user.password = password
+    db.session.commit()
+    sendmail(user.email, "Security Information", "Password Changed for 'paris-flack'")
+    return redirect("/")
+
+
+@app.route("/fp_resend_verification_code")
+def fp_resend_verification_code():
+    if session.get("fp_userInfo") == None:
+        return redirect("/")
+
+    code = str(random.randint(100000, 999999))
+    session["fp_userInfo"]["code"] = code
+    try:
+        sendmail(session["fp_userInfo"]["user"].email, "Verify Email", code)
+    except:
+        return "Error"
+    return redirect("/fp_verification")
+
 
 @app.route("/if_channel")
 def if_channel():
