@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mylist.insertBefore(li, mylist.childNodes[0]);
         }
     });
-
+    /*
     document.querySelectorAll(".deletechat").forEach(link => {
         link.onclick = ()=> {
             let chatid = link.dataset.chat_id;
@@ -79,6 +79,23 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         };
     });
-    
-    
+    */
+
+    socket.on('connect', () => {
+        document.querySelectorAll(".deletechat").forEach(link => {
+            link.onclick = ()=> {
+                let chatid = link.dataset.chat_id;
+                socket.emit('delete chat', {'chat_id': chatid});
+                return false;
+            };
+        });        
+    });
+
+    socket.on('deleted chat', data => {
+        if (data.success) {
+            document.getElementById(data.chat_id).remove();
+        } else {
+            document.querySelector("#channel_error").innerHTML = "There was an error. Refresh the page."
+        }
+    });
 });

@@ -397,3 +397,25 @@ def chat(data):
     c = Chat.query.filter_by(username=username).filter_by(channelname=channel).filter_by(time=time).first()
     mychat = {"message": message, "channel": channel, "username": username, "time": str(time), "chat_id": c.id}
     emit("receive chat", mychat, broadcast=True)
+
+
+@socketio.on("delete chat")
+def delchat(data):
+    chat_id = data["chat_id"]
+
+    try:
+        chat_id = int(chat_id)
+    except:
+        emit("deleted chat", {"success": False}, broadcast=False)
+
+    c = Chat.query.get(chat_id)
+    if c == None:
+        emit("deleted chat", {"success": False}, broadcast=False)
+    
+    if c.username != session["username"]:
+        emit("deleted chat", {"success": False}, broadcast=False)
+    
+    chat_id = str(c.id)
+    db.session.delete(c)
+    db.session.commit()
+    emit("deleted chat", {"success": True, "chat_id": chat_id}, broadcast=True)
