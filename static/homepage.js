@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {    
+document.addEventListener('DOMContentLoaded', () => {
     var channelname;
     var username;
     const request = new XMLHttpRequest();
@@ -14,9 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         else {
             document.querySelector("#chat_button").disabled = false;
-            document.querySelector("#channel_error").remove();
-        }
-            
+            document.querySelector("#channel_error").innerHTML = "";
+        }            
     }
     
     // Connect to websocket
@@ -33,8 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 socket.emit('submit chat', {'message': message, "channel": channelname, "username": username});
                 document.querySelector("#chat_message").value = '';
-            }            
-        };
+            }
+        };        
     });
 
     socket.on('receive chat', data => {
@@ -47,14 +46,39 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             let chat = user.concat(" ", time, '<br>', msg);
             if (user === username) {
-                var text = "<a href=" + "'/deletechat/" + chatID + "'" + '>delete</a>';
-                var text2 = "<a href=" + "'/editchat/" + chatID + "'" + '>edit</a>';
+                var text = `<a class="deletechat" data-chat_id="${chatID}" href="/deletechat/${chatID}">delete</a>`;
+                var text2 = `<a class="editchat" data-chat_id="${chatID}" href="/editchat/${chatID}">edit</a>`;
                 chat = chat.concat(" ", text, " ", text2);
             }
             const li = document.createElement('li');
+            li.className = "wrap_message";
+            li.id = chatID;
             li.innerHTML = chat;
             var mylist = document.querySelector("#chat_list");
             mylist.insertBefore(li, mylist.childNodes[0]);
         }
     });
+
+    document.querySelectorAll(".deletechat").forEach(link => {
+        link.onclick = ()=> {
+            let chatid = link.dataset.chat_id;
+            document.getElementById(chatid).remove();
+
+            const request = new XMLHttpRequest();            
+            request.open('POST', '/delete_chat');            
+            request.onload = () => {
+                const r = JSON.parse(request.responseText);
+                if (!r.success) {
+                    document.querySelector("#channel_error").innerHTML = "There was an error. Refresh the page."
+                }
+            }
+            const data = new FormData();
+            data.append('chatID', chatid);
+            request.send(data);
+            
+            return false;
+        };
+    });
+    
+    
 });

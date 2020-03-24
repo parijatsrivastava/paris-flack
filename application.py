@@ -91,6 +91,30 @@ def editchat(chat_id):
     db.session.commit()
     return redirect("/")
 
+@app.route("/delete_chat", methods=["POST"])
+def delete_chat():
+    if session.get("username") == None:
+        return jsonify({"success": False})
+    
+    chat_id = request.form.get("chatID")
+    if not chat_id:
+        return jsonify({"success": False})
+
+    try:
+        chat_id = int(chat_id)
+    except:
+        return jsonify({"success": False})
+
+    c = Chat.query.get(chat_id)
+    if c == None:
+        return jsonify({"success": False})
+    
+    if c.username != session["username"]:
+        return jsonify({"success": False})
+
+    db.session.delete(c)
+    db.session.commit()
+    return jsonify({"success": True})
 
 
 @app.route("/deletechat/<int:chat_id>")
