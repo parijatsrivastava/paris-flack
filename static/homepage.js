@@ -35,52 +35,46 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };        
     });
-
+    
     socket.on('receive chat', data => {
-        let msg = data.message;
-        let user = data.username;
-        let time = data.time;
-        let chat_id = data.chat_id;
-        var chatID = chat_id.toString();
         if (channelname === data.channel)
         {
-            let chat = user.concat(" ", time, '<br>', msg);
-            if (user === username) {
-                var text = `<a class="deletechat" data-chat_id="${chatID}" href="/deletechat/${chatID}">delete</a>`;
-                var text2 = `<a class="editchat" data-chat_id="${chatID}" href="/editchat/${chatID}">edit</a>`;
-                chat = chat.concat(" ", text, " ", text2);
-            }
+            var chat_id = data.chat_id;
+            var chatID = chat_id.toString();
             const li = document.createElement('li');
+            const header = document.createElement('span');            
+            header.innerHTML = data.username + " " + data.time;
+            li.append(header);
+            const linebreak = document.createElement('br');
+            li.append(linebreak);
+            const chat_message = document.createElement('span');
+            chat_message.innerHTML = data.message;
+            li.append(chat_message);
+            if (data.username === username)
+            {
+                const linebreak1 = document.createElement('br');
+                li.append(linebreak1);
+                const deletelink = document.createElement('a');
+                deletelink.innerHTML = "delete";
+                deletelink.className = "deletechat";
+                deletelink.dataset.chat_id = chatID;
+                deletelink.href = `/deletechat/${chatID}`;
+                li.append(deletelink);
+                li.append(" ");
+                const editlink = document.createElement('a');
+                editlink.innerHTML = "edit";
+                editlink.className = "editchat";
+                editlink.dataset.chat_id = chatID;
+                editlink.href = `/editchat/${chatID}`;
+                li.append(editlink);
+            }
             li.className = "wrap_message";
             li.id = chatID;
-            li.innerHTML = chat;
             var mylist = document.querySelector("#chat_list");
             mylist.insertBefore(li, mylist.childNodes[0]);
         }
     });
-    /*
-    document.querySelectorAll(".deletechat").forEach(link => {
-        link.onclick = ()=> {
-            let chatid = link.dataset.chat_id;
-            document.getElementById(chatid).remove();
-
-            const request = new XMLHttpRequest();            
-            request.open('POST', '/delete_chat');            
-            request.onload = () => {
-                const r = JSON.parse(request.responseText);
-                if (!r.success) {
-                    document.querySelector("#channel_error").innerHTML = "There was an error. Refresh the page."
-                }
-            }
-            const data = new FormData();
-            data.append('chatID', chatid);
-            request.send(data);
-            
-            return false;
-        };
-    });
-    */
-
+    
     socket.on('connect', () => {
         document.querySelectorAll(".deletechat").forEach(link => {
             link.onclick = ()=> {

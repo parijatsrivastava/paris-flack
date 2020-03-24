@@ -13,7 +13,7 @@
 {% block style %}
 <style>
     .row {padding: 20px; text-align: center;}
-    .wrap_message {word-wrap: break-word; padding: 5px;}
+    .wrap_message {word-wrap: break-word; padding: 5px; text-align: left;}
 </style>
 {% endblock %}
 
@@ -43,10 +43,11 @@
                 {% if chats_current_channel %}
                     {% for chat in chats_current_channel %}
                         <li class="wrap_message" id="{{ chat.id }}">
-                            {{ chat.username }}
-                            {{ chat.time }}<br>
-                            {{ chat.message }}
+                            <span>{{ chat.username }} {{ chat.time }}</span>
+                            <br>
+                            <span>{{ chat.message }}</span>
                             {% if chat.username == username %}
+                                <br>
                                 <a class="deletechat" data-chat_id="{{ chat.id }}" href="{{ url_for('deletechat', chat_id=chat.id) }}">delete</a>
                                 <a class="editchat" data-chat_id="{{ chat.id }}" href="{{ url_for('editchat', chat_id=chat.id) }}">edit</a>
                             {% endif %}                            
