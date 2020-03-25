@@ -35,7 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return false;
             } else {
                 socket.emit('submit chat', {'message': message, "channel": channelname, "username": username});
-                document.querySelector("#chat_message").value = '';
+                document.querySelector("#chat_message").autofocus = true;
+                document.querySelector("#chat_message").value = '';                
             }
         };        
     });
@@ -72,25 +73,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });        
     });
 
+    socket.on('connect', () => {
+        document.querySelectorAll(".deletechannel").forEach(link => {
+            link.onclick = ()=> {
+                let chname = link.dataset.channelname;
+                socket.emit('process channel deletion', {'channelname': chname});
+            };
+        });        
+    });
+
+    socket.on('block chat', data => {
+        if (data.channelname === channelname) {
+            document.querySelector("#chat_button").disabled = true;
+            document.querySelector("#channel_error").innerHTML = "THIS CHANNEL IS BEING DELETED";
+        }
+    });
+
     socket.on('deleted chat', data => {
-        if (data.success) {
-            document.getElementById(data.chat_id).remove();
-        } else {
-            document.querySelector("#channel_error").innerHTML = "There was an error. Refresh the page."
+        if (data.channelname === channelname) {
+            if (data.success) {
+                document.getElementById(data.chat_id).remove();                
+            } else {
+                document.querySelector("#channel_error").innerHTML = "There was an error. Refresh the page."
+            }
         }
     });
 
     socket.on('deleted channel', data => {
-        if (data.channelname === channelname) {
+        if (data.channelname === channelname) {            
             document.getElementById(data.channelid).remove();
-            location.reload();
+            location.reload();            
         } else {
             document.getElementById(data.channelid).remove();
         }
     });
-
-    //socketio.emit("deleted channel", {"channelname": c.name, "channelid": c.id}, broadcast=True)
-    //location.reload(true);
     
     socket.on('channel created', data => {
         let current_channel = false;
@@ -104,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let div = channel_div_template({'channelname': data.channel, 'current_channel': current_channel, 'current_user': current_user, 'channelid': data.id});
         document.querySelector("#channel_list").innerHTML += div;
         if (document.querySelector("#nochannels_in_list").innerHTML) {
-            document.querySelector("#nochannels_in_list").remove();
+            document.querySelector("#nochannels_in_list").innerHTML = "";
         }
         
     });

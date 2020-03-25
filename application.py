@@ -80,7 +80,7 @@ def deletechannel(channelname):
     chats = c.chats
     for chat in chats:
         db.session.delete(chat)
-        socketio.emit("deleted chat", {"success": True, "chat_id": chat.id}, broadcast=True)
+        socketio.emit("deleted chat", {"success": True, "chat_id": str(chat.id), "channelname": chat.channelname}, broadcast=True)
     
     db.session.delete(c)    
     db.session.commit()
@@ -119,7 +119,7 @@ def editchat(chat_id):
     time = datetime.now()
     c.time = time
     db.session.commit()
-    socketio.emit("deleted chat", {"success": True, "chat_id": chat_id}, broadcast=True)
+    socketio.emit("deleted chat", {"success": True, "chat_id": chat_id, "channelname": c.channelname}, broadcast=True)
     mychat = {"message": chat_message, "channel": channel, "username": session["username"], "time": str(time), "chat_id": chat_id}
     socketio.emit("receive chat", mychat, broadcast=True)
     return redirect("/")
@@ -144,7 +144,7 @@ def deletechat(chat_id):
         return redirect("/")
     db.session.delete(c)
     db.session.commit()    
-    socketio.emit("deleted chat", {"success": True, "chat_id": chat_id}, broadcast=True)
+    socketio.emit("deleted chat", {"success": True, "chat_id": chat_id, "channelname": c.channelname}, broadcast=True)
     return redirect("/")
 
 
@@ -409,6 +409,12 @@ def chat(data):
     emit("receive chat", mychat, broadcast=True)
 
 
+
+@socketio.on("process channel deletion")
+def channel_deletion(data):
+    emit("block chat", {"channelname": data["channelname"]}, broadcast=True)
+    
+
 @socketio.on("delete chat")
 def delchat(data):
     chat_id = data["chat_id"]
@@ -428,4 +434,4 @@ def delchat(data):
     chat_id = str(c.id)
     db.session.delete(c)
     db.session.commit()
-    emit("deleted chat", {"success": True, "chat_id": chat_id}, broadcast=True)
+    emit("deleted chat", {"success": True, "chat_id": chat_id, "channelname": c.channelname}, broadcast=True)

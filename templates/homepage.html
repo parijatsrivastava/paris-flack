@@ -44,7 +44,7 @@
                     <a href="changechannel/{{channelname}}">{{channelname}}</a>
                 {{/if}}
                 {{#if current_user}}
-                    <a href="/deletechannel/{{channelname}}"><span style="color: red;">delete</span></a>
+                    <a href="/deletechannel/{{channelname}}" data-channelname="{{channelname}}" class="deletechannel"><span style="color: red;">delete</span></a>
                 {{/if}}            
             </div>
         {%- endraw %}
@@ -56,7 +56,7 @@
     <div class="row">
         <div class="col-lg-3">
             <label for="chat_message"><h4>Type your Message</h4></label>
-            <textarea class="form-control" rows="10" id="chat_message" name="chat_message"></textarea><br>
+            <textarea class="form-control" rows="10" id="chat_message" name="chat_message" autofocus></textarea><br>
             <button id ="chat_button" class="btn btn-primary">Submit</button>
             <div class="error_message">
                 <span id="channel_error"></span>
@@ -96,8 +96,8 @@
                             <a href="{{ url_for('changechannel', channelname=c.name) }}">{{ c.name }}</a>
                         {% endif %}
                         {% if c.username == username %}
-                            <a href="{{ url_for('deletechannel', channelname=c.name) }}"><span style="color: red;">delete</span></a>
-                        {% endif %}
+                            <a href="{{ url_for('deletechannel', channelname=c.name) }}" data-channelname="{{c.name}}" class="deletechannel"><span style="color: red;">delete</span></a>
+                            {% endif %}
                     </div>
                 {% endfor %}
             </div>
