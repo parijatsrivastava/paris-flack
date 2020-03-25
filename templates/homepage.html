@@ -35,6 +35,20 @@
             </li>
         {%- endraw %}
     </script>
+    <script id="channel_div" type="text/x-handlebars-template">
+        {% raw -%}
+            <div id="{{ channelid }}">            
+                {{#if current_channel}}
+                    {{channelname}}
+                {{else}}
+                    <a href="changechannel/{{channelname}}">{{channelname}}</a>
+                {{/if}}
+                {{#if current_user}}
+                    <a href="/deletechannel/{{channelname}}"><span style="color: red;">delete</span></a>
+                {{/if}}            
+            </div>
+        {%- endraw %}
+    </script>
 {% endblock %}
 
 
@@ -71,25 +85,28 @@
                 {% endif %}
             </ol>
         </div>
-        <div class="col-lg-3" id="channel_list">
-            {% if allchannels %}
-                <h4>All Channels</h4>
+        <div class="col-lg-3">            
+            <h4>All Channels</h4>
+            <div id="channel_list">
                 {% for c in allchannels %}
-                    <div>
+                    <div id="{{ c.id }}">
                         {% if channelname == c.name %}
                             {{ c.name }}
                         {% else %}
                             <a href="{{ url_for('changechannel', channelname=c.name) }}">{{ c.name }}</a>
                         {% endif %}
                         {% if c.username == username %}
-                            <span style="color: green;">(My Channel)</span>
+                            <a href="{{ url_for('deletechannel', channelname=c.name) }}"><span style="color: red;">delete</span></a>
                         {% endif %}
                     </div>
                 {% endfor %}
-            {% else %}
-                No Channels in List<br>
-                <a href="{{ url_for('createchannel') }}">Create Channel</a>
-            {% endif %}
+            </div>
+            <div id="nochannels_in_list">
+                {% if not allchannels %}
+                    No Channels in List<br>
+                    <a href="{{ url_for('createchannel') }}">Create Channel</a>
+                {% endif %}
+            </div>
         </div>
     </div>
 {% endblock %}

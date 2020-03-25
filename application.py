@@ -34,7 +34,12 @@ def index():
         session["channelname"] = None
         chats_current_channel = None
     else:
-        chats_current_channel = Chat.query.filter_by(channelname=session["channelname"]).order_by(Chat.time.desc()).limit(100).all()
+        ch = Channel.query.filter_by(name=session["channelname"]).first()
+        if ch == None:
+            session["channelname"] = None
+            chats_current_channel = None            
+        else:
+            chats_current_channel = Chat.query.filter_by(channelname=session["channelname"]).order_by(Chat.time.desc()).limit(100).all()
     
     if request.method == "GET":        
         return render_template("homepage.html", username=session["username"], channelname=session["channelname"], allchannels=allchannels, chats_current_channel=chats_current_channel)
@@ -58,9 +63,31 @@ def createchannel():
         db.session.add(c)
         db.session.commit()
         session["channelname"] = channelname
+        c = Channel.query.filter_by(name=channelname).first()
+        socketio.emit("channel created", {"channel": channelname, "username": session["username"], "id": c.id}, broadcast=True)
         return redirect("/")
     else:
         return render_template("createchannel.html", username=session["username"], create_channel_error="Type a Different Channel Name")
+
+
+@app.route("/deletechannel/<string:channelname>")
+def deletechannel(channelname):
+    if session.get("username") == None:
+        return redirect("/login")
+    c = Channel.query.filter_by(name=channelname).first()
+    if c == None or c.username != session["username"]:
+        return redirect("/")
+    chats = c.chats
+    for chat in chats:
+        db.session.delete(chat)
+        socketio.emit("deleted chat", {"success": True, "chat_id": chat.id}, broadcast=True)
+    
+    db.session.delete(c)    
+    db.session.commit()
+    socketio.emit("deleted channel", {"channelname": c.name, "channelid": c.id}, broadcast=True)
+    if session["channelname"] == channelname:
+        session["channelname"] = None
+    return redirect("/")
 
 
 @app.route("/editchat/<int:chat_id>", methods=["POST", "GET"])

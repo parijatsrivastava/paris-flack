@@ -1,7 +1,7 @@
-
 var title_text = document.querySelector("#homepage_title").innerHTML;
 var msg_count = 1;
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {    
+    const channel_div_template = Handlebars.compile(document.querySelector('#channel_div').innerHTML);
     const list_template = Handlebars.compile(document.querySelector('#message_li').innerHTML);    
     var channelname;
     var username;
@@ -79,6 +79,36 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector("#channel_error").innerHTML = "There was an error. Refresh the page."
         }
     });
+
+    socket.on('deleted channel', data => {
+        if (data.channelname === channelname) {
+            document.getElementById(data.channelid).remove();
+            location.reload();
+        } else {
+            document.getElementById(data.channelid).remove();
+        }
+    });
+
+    //socketio.emit("deleted channel", {"channelname": c.name, "channelid": c.id}, broadcast=True)
+    //location.reload(true);
+    
+    socket.on('channel created', data => {
+        let current_channel = false;
+        let current_user = false;
+        if (data.channel === channelname) {
+            current_channel = true;
+        } 
+        if (data.username === username) {
+            current_user = true;
+        }
+        let div = channel_div_template({'channelname': data.channel, 'current_channel': current_channel, 'current_user': current_user, 'channelid': data.id});
+        document.querySelector("#channel_list").innerHTML += div;
+        if (document.querySelector("#nochannels_in_list").innerHTML) {
+            document.querySelector("#nochannels_in_list").remove();
+        }
+        
+    });
+
 });
 
 window.onclick = ()=>{
