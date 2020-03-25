@@ -1,4 +1,6 @@
+var title_text = document.querySelector("#homepage_title").innerHTML;
 document.addEventListener('DOMContentLoaded', () => {
+    var msg_count = 1;    
     var channelname;
     var username;
     const request = new XMLHttpRequest();
@@ -67,11 +69,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 editlink.dataset.chat_id = chatID;
                 editlink.href = `/editchat/${chatID}`;
                 li.append(editlink);
+            } else {
+                document.querySelector("#homepage_title").innerHTML = `${title_text} (${msg_count})`;
+                msg_count = msg_count + 1;
             }
             li.className = "wrap_message";
             li.id = chatID;
             var mylist = document.querySelector("#chat_list");
-            mylist.insertBefore(li, mylist.childNodes[0]);
+            mylist.insertBefore(li, mylist.childNodes[0]);            
         }
     });
     
@@ -93,3 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+window.onclick = ()=>{
+    document.querySelector("#homepage_title").innerHTML = title_text;
+};
