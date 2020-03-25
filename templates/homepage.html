@@ -18,8 +18,23 @@
 {% endblock %}
 
 {% block script %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
-    <script src="{{ url_for('static', filename='homepage.js') }}"></script>
+    <script src="{{ url_for('static', filename='homepage.js') }}"></script>    
+    <script id="message_li" type="text/x-handlebars-template">
+        {% raw -%}
+            <li class="wrap_message" id="{{ chat_id }}">                
+                <span>{{ username }} {{ time }}</span>
+                <br>
+                <span>{{ message }}</span>
+                {{#if currentuser}}
+                <br>
+                <a class="deletechat" data-chat_id="{{ chat_id }}" href="/deletechat/{{ chat_id }}">delete</a>
+                <a class="editchat" data-chat_id="{{ chat_id }}" href="/editchat/{{ chat_id }}">edit</a>
+                {{/if}}
+            </li>
+        {%- endraw %}
+    </script>
 {% endblock %}
 
 
@@ -56,7 +71,7 @@
                 {% endif %}
             </ol>
         </div>
-        <div class="col-lg-3">
+        <div class="col-lg-3" id="channel_list">
             {% if allchannels %}
                 <h4>All Channels</h4>
                 {% for c in allchannels %}

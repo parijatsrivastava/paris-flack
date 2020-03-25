@@ -1,6 +1,8 @@
+
 var title_text = document.querySelector("#homepage_title").innerHTML;
+var msg_count = 1;
 document.addEventListener('DOMContentLoaded', () => {
-    var msg_count = 1;    
+    const list_template = Handlebars.compile(document.querySelector('#message_li').innerHTML);    
     var channelname;
     var username;
     const request = new XMLHttpRequest();
@@ -43,40 +45,20 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             var chat_id = data.chat_id;
             var chatID = chat_id.toString();
-            const li = document.createElement('li');
-            const header = document.createElement('span');            
-            header.innerHTML = data.username + " " + data.time;
-            li.append(header);
-            const linebreak = document.createElement('br');
-            li.append(linebreak);
-            const chat_message = document.createElement('span');
-            chat_message.innerHTML = data.message;
-            li.append(chat_message);
-            if (data.username === username)
-            {
-                const linebreak1 = document.createElement('br');
-                li.append(linebreak1);
-                const deletelink = document.createElement('a');
-                deletelink.innerHTML = "delete";
-                deletelink.className = "deletechat";
-                deletelink.dataset.chat_id = chatID;
-                deletelink.href = `/deletechat/${chatID}`;
-                li.append(deletelink);
-                li.append(" ");
-                const editlink = document.createElement('a');
-                editlink.innerHTML = "edit";
-                editlink.className = "editchat";
-                editlink.dataset.chat_id = chatID;
-                editlink.href = `/editchat/${chatID}`;
-                li.append(editlink);
+            var currentuser;
+
+            if (data.username === username) {
+                currentuser = true;
             } else {
+                currentuser = false;
                 document.querySelector("#homepage_title").innerHTML = `${title_text} (${msg_count})`;
                 msg_count = msg_count + 1;
             }
-            li.className = "wrap_message";
-            li.id = chatID;
-            var mylist = document.querySelector("#chat_list");
-            mylist.insertBefore(li, mylist.childNodes[0]);            
+
+            let li = list_template({'username': data.username, 'time': data.time, 'chat_id': chatID, 'currentuser': currentuser, 'message': data.message});
+            let mylist = document.querySelector("#chat_list").innerHTML;
+            li += mylist;
+            document.querySelector("#chat_list").innerHTML = li;        
         }
     });
     
@@ -101,4 +83,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
 window.onclick = ()=>{
     document.querySelector("#homepage_title").innerHTML = title_text;
+    msg_count = 1;
 };
