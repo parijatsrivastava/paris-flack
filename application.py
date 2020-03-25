@@ -76,6 +76,9 @@ def editchat(chat_id):
     c = Chat.query.get(chat_id)
     if c == None:
         return redirect("/")
+    else:
+        channel = c.channelname
+
     if c.username != session["username"]:        
         return redirect("/")
     
@@ -89,7 +92,14 @@ def editchat(chat_id):
     time = datetime.now()
     c.time = time
     db.session.commit()
+    socketio.emit("deleted chat", {"success": True, "chat_id": chat_id}, broadcast=True)
+    mychat = {"message": chat_message, "channel": channel, "username": session["username"], "time": str(time), "chat_id": chat_id}
+    socketio.emit("receive chat", mychat, broadcast=True)
     return redirect("/")
+
+
+
+
 
 @app.route("/delete_chat", methods=["POST"])
 def delete_chat():
@@ -134,7 +144,8 @@ def deletechat(chat_id):
     if c.username != session["username"]:        
         return redirect("/")
     db.session.delete(c)
-    db.session.commit()
+    db.session.commit()    
+    socketio.emit("deleted chat", {"success": True, "chat_id": chat_id}, broadcast=True)
     return redirect("/")
 
 
