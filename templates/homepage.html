@@ -12,8 +12,49 @@
 
 {% block style %}
 <style>
+    @keyframes hide {
+        0% {
+            opacity: 1;
+            height: 100%;
+            line-height: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        75% {
+            opacity: 0;
+            height: 100%;
+            line-height: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        100% {
+            opacity: 0;
+            height: 0px;
+            line-height: 0px;
+            padding: 0px;
+            margin-bottom: 0px;
+        }
+    }
+
+    .hide  {
+        float: right;
+    }
+    .wrap_message {
+        background-color: linen;
+        padding: 10px;
+        animation-name: hide;
+        animation-duration: 2s;
+        animation-fill-mode: forwards;
+        animation-play-state: paused;
+        word-wrap: break-word;
+        text-align: left;
+        margin-bottom: 10px;
+        
+    }
     .row {padding: 20px; text-align: center;}
-    .wrap_message {word-wrap: break-word; padding: 5px; text-align: left;}
+    .my_display_message {color: darkmagenta; text-align: left;}
+    .other_messages {color: green; text-align: right;}
+    .chat_user_time {color: brown;}
 </style>
 {% endblock %}
 
@@ -23,16 +64,24 @@
     <script src="{{ url_for('static', filename='homepage.js') }}"></script>    
     <script id="message_li" type="text/x-handlebars-template">
         {% raw -%}
-            <li class="wrap_message" id="{{ chat_id }}">                
-                <span>{{ username }} {{ time }}</span>
-                <br>
-                <span>{{ message }}</span>
+            <div class="wrap_message" id="{{ chat_id }}">                
                 {{#if currentuser}}
-                <br>
-                <a class="deletechat" data-chat_id="{{ chat_id }}" href="/deletechat/{{ chat_id }}">delete</a>
-                <a class="editchat" data-chat_id="{{ chat_id }}" href="/editchat/{{ chat_id }}">edit</a>
+                    <div class="my_display_message">
+                        <span class="chat_user_time">{{ username }} {{ time }}</span>
+                        <br><br>                        
+                        <span>{{ message }}</span>
+                        <br><br>
+                        <a class="deletechat" data-chat_id="{{ chat_id }}" href="/deletechat/{{ chat_id }}">delete</a>
+                        <a class="editchat" data-chat_id="{{ chat_id }}" href="/editchat/{{ chat_id }}">edit</a>
+                    </div>
+                {{else}}                
+                    <div class="other_messages">
+                        <span class="chat_user_time">{{ username }} {{ time }}</span>
+                        <br><br>                        
+                        <span>{{ message }}</span>
+                    </div>
                 {{/if}}
-            </li>
+            </div>
         {%- endraw %}
     </script>
     <script id="channel_div" type="text/x-handlebars-template">
@@ -68,22 +117,30 @@
             {% else %}
                 <span>No Channel Selected</span>
             {% endif %}
-            <ol id="chat_list">
+            <div id="chat_list">
                 {% if chats_current_channel %}
                     {% for chat in chats_current_channel %}
-                        <li class="wrap_message" id="{{ chat.id }}">
-                            <span>{{ chat.username }} {{ chat.time }}</span>
-                            <br>
-                            <span>{{ chat.message }}</span>
+                        <div class="wrap_message" id="{{ chat.id }}">                            
                             {% if chat.username == username %}
-                                <br>
-                                <a class="deletechat" data-chat_id="{{ chat.id }}" href="{{ url_for('deletechat', chat_id=chat.id) }}">delete</a>
-                                <a class="editchat" data-chat_id="{{ chat.id }}" href="{{ url_for('editchat', chat_id=chat.id) }}">edit</a>
-                            {% endif %}                            
-                        </li>
+                                <div class="my_display_message">
+                                    <span class="chat_user_time">{{ chat.username }} {{ chat.time }}</span>
+                                    <br><br>                                    
+                                    <span>{{ chat.message }}</span>
+                                    <br><br>
+                                    <a class="deletechat" data-chat_id="{{ chat.id }}" href="{{ url_for('deletechat', chat_id=chat.id) }}">delete</a>
+                                    <a class="editchat" data-chat_id="{{ chat.id }}" href="{{ url_for('editchat', chat_id=chat.id) }}">edit</a>
+                                </div>
+                            {% else %}
+                                <div class="other_messages">
+                                    <span class="chat_user_time">{{ chat.username }} {{ chat.time }}</span>
+                                    <br><br>
+                                    <span>{{ chat.message }}</span>
+                                </div>  
+                            {% endif %}
+                        </div>
                     {% endfor %}
                 {% endif %}
-            </ol>
+            </div>
         </div>
         <div class="col-lg-3">            
             <h4>All Channels</h4>

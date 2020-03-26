@@ -92,7 +92,11 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('deleted chat', data => {
         if (data.channelname === channelname) {
             if (data.success) {
-                document.getElementById(data.chat_id).remove();                
+                const element = document.getElementById(data.chat_id);
+                element.style.animationPlayState = 'running';
+                element.addEventListener('animationend', () =>  {
+                    element.remove();
+                });
             } else {
                 document.querySelector("#channel_error").innerHTML = "There was an error. Refresh the page."
             }
