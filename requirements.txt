@@ -2,7 +2,7 @@ Flask
 Flask-SocketIO
 flask-session
 requests
-Werkzeug==0.16.0
+Werkzeug==2.2.3
 flask_sqlalchemy
 psycopg2-binary
 eventlet
